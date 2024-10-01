@@ -48,7 +48,7 @@
     <div>
         
     <h4>Steps:  </h4>
-       <h6> <br>
+       <h6>
         Click "Pay Now" <br>
         Make payment & Take "ScreenShot"<br>
         Go back to address Form Page <br>
@@ -60,15 +60,15 @@
   
          <button id="close-btn"><a href="upi://pay?pa=nagul9@freecharge&pn=Oka&cu=INR&mode=02&purpose=00&orgid=400005&am=389">Pay Now</a></button>
     
-<h5>upi id : nagul9@freecharge<br>
-
-</h5>
+<h1>upi id : nagul9@freecharge</h1>
     </div>
-   <script>
-    document.getElementById('close-btn').addEventListener('click', function() {
-      window.close();
-    });
-  </script>
+    <script>
+        document.getElementById('close-btn').addEventListener('click', function() {
+          setTimeout(function() {
+            window.close();
+          }, 2000); // 2000 milliseconds = 2 seconds
+        });
+      </script>
 </body>
 </html> 
   
