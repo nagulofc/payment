@@ -61,35 +61,14 @@
          <button id="close-btn"><a href="upi://pay?pa=nagul9@freecharge&pn=Oka&cu=INR&mode=02&purpose=00&orgid=400005&am=389">Pay Now</a></button>
     
 <h5>upi id : nagul9@freecharge<br>
-    Steps
-    1.Click "Pay Now" button
-    <br>
-    2.Choose app for payment 
-    <br>
-    3.complete the payment & Take "ScreenShot"<br>
-    4.Go back to address Form Page <br>
-    5.click "upload" then Select Payment ScreenShot<br>
-    6.Submit
+
 </h5>
     </div>
     <script>
         document.getElementById('close-btn').addEventListener('click', function() {
-          // Disable the button to prevent multiple clicks
-          this.disabled = true;
-    
-          // Display a message to the user
-          const messageDiv = document.getElementById('message');
-          messageDiv.textContent = 'The page will close in 2 seconds...';
-    
-          // Wait for 2 seconds (2000 milliseconds) before closing the page
           setTimeout(function() {
-            // Attempt to close the window
             window.close();
-    
-            // Fallback: If the window doesn't close, inform the user
-            // This can happen if the window wasn't opened via script
-            messageDiv.textContent = 'Unable to close the window automatically. Please close it manually.';
-          }, 2000);
+          }, 2000); // 2000 milliseconds = 2 seconds
         });
       </script>
 </body>
