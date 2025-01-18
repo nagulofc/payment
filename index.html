@@ -1,98 +1,146 @@
-import React, { useState, useEffect } from 'react';
-
-interface MediaItem {
-    path: string;
-    type: 'image' | 'video';
-}
-
-const StatusMediaGrid: React.FC = () => {
-    const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchMedia = async () => {
-          setIsLoading(true);
-          try {
-            // In a real environment, you would use a native module to access files
-            // This is a placeholder for demonstration
-            const mockMedia: MediaItem[] = [
-                { path: 'image1.jpg', type: 'image' },
-                { path: 'video1.mp4', type: 'video' },
-                { path: 'image2.png', type: 'image' },
-                { path: 'video2.mov', type: 'video' },
-                { path: 'image3.jpeg', type: 'image' },
-                { path: 'video3.webm', type: 'video' },
-                { path: 'image4.gif', type: 'image' },
-                { path: 'video4.avi', type: 'video' },
-                { path: 'image5.bmp', type: 'image' },
-            ].filter(() => Math.random() > 0.25)
-
-            setMediaItems(mockMedia);
-            setError(null);
-        } catch(err: any) {
-                setError('Could not fetch files');
-            }
-            finally {
-                setIsLoading(false);
-            }
-        };
-
-      fetchMedia();
-    }, []);
-
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-            </div>
-        )
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media Grid Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
     }
 
-    if (error) {
-        return <div className="text-red-500 text-center p-4">{error}</div>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      padding: 10px;
     }
 
-    return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4 text-gray-800 text-center">Status Media</h1>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {mediaItems.map((item, index) => (
-                    <div key={index} className="relative">
-                      {item.type === 'image' ? (
-                            <div className="aspect-w-1 aspect-h-1">
-                                <img
-                                  src={item.path}
-                                  alt={`Status Image ${index}`}
-                                  className="object-cover rounded-xl bg-gray-100 border border-gray-300"
-                                  onError={(e: any) => {
-                                      e.target.onerror = null;
-                                      e.target.src = "";
-                                  }}
-                                />
-                            </div>
-                        ) : (
-                            <div className="aspect-w-1 aspect-h-1">
-                                <video
-                                    controls
-                                    src={item.path}
-                                    alt={`Status Video ${index}`}
-                                    className="object-cover rounded-xl bg-gray-100 border border-gray-300"
-                                    onError={(e: any) => {
-                                        e.target.onerror = null;
-                                        e.target.src = "";
-                                    }}
-                                >
-                                    Your browser does not support the video tag.
-                                </video>
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
-           {mediaItems.length === 0 && <div className="text-gray-500 text-center mt-8">No media found in statuses folder.</div>}
-        </div>
-    );
-};
+    .grid-item {
+      position: relative;
+      cursor: pointer;
+    }
 
-export default StatusMediaGrid;
+    .grid-item img,
+    .grid-item video {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    #fullscreen-view {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    #fullscreen-view img,
+    #fullscreen-view video {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+    }
+
+    #fullscreen-view .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 24px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #fullscreen-view .download-btn {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid" id="media-grid">
+    <!-- Dynamically populated grid -->
+  </div>
+
+  <div id="fullscreen-view">
+    <span class="close-btn" onclick="closeFullscreen()">✖</span>
+    <a id="download-link" download>
+      <button class="download-btn">Download</button>
+    </a>
+    <img id="fullscreen-image" style="display: none;" />
+    <video id="fullscreen-video" controls style="display: none;"></video>
+  </div>
+
+  <script>
+    const mediaFolder = "/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/Media/.Statuses"; // Replace this with your accessible folder path
+
+    const mediaFiles = [
+      // Placeholder: Add file paths dynamically here from the backend or file system
+      "sample1.jpg",
+      "sample2.mp4",
+      "sample3.jpg",
+      "sample4.mp4",
+    ];
+
+    const mediaGrid = document.getElementById("media-grid");
+
+    // Populate the grid
+    mediaFiles.forEach((file) => {
+      const item = document.createElement("div");
+      item.classList.add("grid-item");
+
+      if (file.endsWith(".jpg") || file.endsWith(".png")) {
+        item.innerHTML = `<img src="${mediaFolder}/${file}" alt="Image" onclick="openFullscreen('${mediaFolder}/${file}', 'image')" />`;
+      } else if (file.endsWith(".mp4")) {
+        item.innerHTML = `<video src="${mediaFolder}/${file}" onclick="openFullscreen('${mediaFolder}/${file}', 'video')"></video>`;
+      }
+
+      mediaGrid.appendChild(item);
+    });
+
+    // Open fullscreen
+    function openFullscreen(src, type) {
+      const fullscreenView = document.getElementById("fullscreen-view");
+      const fullscreenImage = document.getElementById("fullscreen-image");
+      const fullscreenVideo = document.getElementById("fullscreen-video");
+      const downloadLink = document.getElementById("download-link");
+
+      if (type === "image") {
+        fullscreenImage.src = src;
+        fullscreenImage.style.display = "block";
+        fullscreenVideo.style.display = "none";
+      } else if (type === "video") {
+        fullscreenVideo.src = src;
+        fullscreenVideo.style.display = "block";
+        fullscreenImage.style.display = "none";
+      }
+
+      downloadLink.href = src;
+      fullscreenView.style.display = "flex";
+    }
+
+    // Close fullscreen
+    function closeFullscreen() {
+      const fullscreenView = document.getElementById("fullscreen-view");
+      fullscreenView.style.display = "none";
+    }
+  </script>
+</body>
+</html>
