@@ -1,146 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Media Grid Viewer</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 10px;
-      padding: 10px;
-    }
-
-    .grid-item {
-      position: relative;
-      cursor: pointer;
-    }
-
-    .grid-item img,
-    .grid-item video {
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-    }
-
-    #fullscreen-view {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    #fullscreen-view img,
-    #fullscreen-view video {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 8px;
-    }
-
-    #fullscreen-view .close-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 24px;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    #fullscreen-view .download-btn {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      padding: 10px 20px;
-      background: #fff;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      text-transform: uppercase;
-    }
-  </style>
+<title>WhatsApp Statuses</title>
 </head>
 <body>
-  <div class="grid" id="media-grid">
-    <!-- Dynamically populated grid -->
+
+<h1>WhatsApp Statuses</h1>
+
+<div id="status-container">
   </div>
 
-  <div id="fullscreen-view">
-    <span class="close-btn" onclick="closeFullscreen()">✖</span>
-    <a id="download-link" download>
-      <button class="download-btn">Download</button>
-    </a>
-    <img id="fullscreen-image" style="display: none;" />
-    <video id="fullscreen-video" controls style="display: none;"></video>
-  </div>
+<script>
+  // This approach WILL NOT WORK in a standard web browser.
+  // Browsers have strict security restrictions that prevent
+  // JavaScript from accessing the local file system in this way.
 
-  <script>
-    const mediaFolder = "/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/Media/.Statuses"; // Replace this with your accessible folder path
+  // This code is ONLY for demonstration purposes to illustrate
+  // what you would *conceptually* need to do if such access were possible.
 
-    const mediaFiles = [
-      // Placeholder: Add file paths dynamically here from the backend or file system
-      "sample1.jpg",
-      "sample2.mp4",
-      "sample3.jpg",
-      "sample4.mp4",
+  // To achieve this functionality, you would need a native app
+  // (Android/iOS) or a server-side solution.
+
+  function displayStatuses() {
+    const statusContainer = document.getElementById('status-container');
+
+    // In a real native app or server-side environment, you would
+    // use platform-specific APIs (e.g., File API in Android,
+    // NSFileManager in iOS, or server-side file system access)
+    // to read the files in the directory.
+
+    // This is a placeholder for the actual file reading logic.
+    const statusFiles = [
+      "/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/Media/.Statuses/status1.jpg",
+      "/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/Media/.Statuses/status2.mp4",
+      // ... more status files
     ];
 
-    const mediaGrid = document.getElementById("media-grid");
+    statusFiles.forEach(filePath => {
+      const fileExtension = filePath.split('.').pop().toLowerCase();
 
-    // Populate the grid
-    mediaFiles.forEach((file) => {
-      const item = document.createElement("div");
-      item.classList.add("grid-item");
-
-      if (file.endsWith(".jpg") || file.endsWith(".png")) {
-        item.innerHTML = `<img src="${mediaFolder}/${file}" alt="Image" onclick="openFullscreen('${mediaFolder}/${file}', 'image')" />`;
-      } else if (file.endsWith(".mp4")) {
-        item.innerHTML = `<video src="${mediaFolder}/${file}" onclick="openFullscreen('${mediaFolder}/${file}', 'video')"></video>`;
+      if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png') {
+        const imgElement = document.createElement('img');
+        imgElement.src = filePath; // This would work in native/server context
+        imgElement.alt = "Status Image";
+        imgElement.style.maxWidth = "200px"; // Limit image width for display
+        statusContainer.appendChild(imgElement);
+      } else if (fileExtension === 'mp4') {
+        const videoElement = document.createElement('video');
+        videoElement.src = filePath; // This would work in native/server context
+        videoElement.controls = true;
+        videoElement.style.maxWidth = "200px";
+        statusContainer.appendChild(videoElement);
       }
-
-      mediaGrid.appendChild(item);
     });
 
-    // Open fullscreen
-    function openFullscreen(src, type) {
-      const fullscreenView = document.getElementById("fullscreen-view");
-      const fullscreenImage = document.getElementById("fullscreen-image");
-      const fullscreenVideo = document.getElementById("fullscreen-video");
-      const downloadLink = document.getElementById("download-link");
+    // IMPORTANT: In a browser, this will result in errors like:
+    // "Not allowed to load local resource: file:///..."
+  }
 
-      if (type === "image") {
-        fullscreenImage.src = src;
-        fullscreenImage.style.display = "block";
-        fullscreenVideo.style.display = "none";
-      } else if (type === "video") {
-        fullscreenVideo.src = src;
-        fullscreenVideo.style.display = "block";
-        fullscreenImage.style.display = "none";
-      }
+  // Call the function (this will fail in a browser environment)
+  displayStatuses();
 
-      downloadLink.href = src;
-      fullscreenView.style.display = "flex";
-    }
+</script>
 
-    // Close fullscreen
-    function closeFullscreen() {
-      const fullscreenView = document.getElementById("fullscreen-view");
-      fullscreenView.style.display = "none";
-    }
-  </script>
 </body>
 </html>
